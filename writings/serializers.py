@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from categories.models import Category
+from .models import Writing
 from utils.serializers import CamelCaseSerializer
 
-class CategorySerializer(CamelCaseSerializer):
+
+class WritingSerializer(CamelCaseSerializer):
 
     class Meta:
-        model = Category
+        model = Writing
         fields = '__all__'
