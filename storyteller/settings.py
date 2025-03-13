@@ -43,7 +43,8 @@ INSTALLED_APPS = [
      # Local apps
      'stories',
      'categories',
-     'writings'
+     'writings',
+     'comments'
 ]
 
 MIDDLEWARE = [

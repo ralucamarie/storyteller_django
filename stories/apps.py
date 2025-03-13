@@ -3,12 +3,12 @@ from django.utils.lorem_ipsum import paragraphs
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
-
-def add_stories_and_writings(sender, **kwargs):
+def add_stories_and_writings_and_comments(sender, **kwargs):
     from django.apps import apps
     Story = apps.get_model('stories', 'Story')
     Category = apps.get_model('categories', 'Category')
     Writing = apps.get_model('writings', 'Writing')
+    Comment = apps.get_model('comments', 'Comment')
 
     categories = list(Category.objects.all())
     if not categories:  # Ensure categories exist before proceeding
@@ -40,10 +40,18 @@ def add_stories_and_writings(sender, **kwargs):
                 text=" ".join(paragraphs(3))[:random.randint(1000, 5000)]
             )
 
+        # Create 3-10 writings per story
+        for _ in range(random.randint(3, 20)):
+            Comment.objects.create(
+                story=story,
+                author_name=random.choice(["Alice", "Bob", "Charlie", "Diana", "Ethan"]),
+                content=" ".join(paragraphs(3))[:random.randint(50, 1000)]
+            )
+
 
 class StoriesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'stories'
 
     def ready(self):
-        post_migrate.connect(add_stories_and_writings, sender=self)
+        post_migrate.connect(add_stories_and_writings_and_comments, sender=self)
