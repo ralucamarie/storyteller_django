@@ -1,9 +1,10 @@
 from django.db import models
+from django.conf import settings
 
 class Comment(models.Model):
-    story = models.ForeignKey("stories.Story", related_name="comments", on_delete=models.CASCADE)  # ✅ String reference avoids import issues
-    author_name = models.CharField(max_length=100)
+    story_id = models.ForeignKey("stories.Story", related_name="comments", on_delete=models.CASCADE)  # ✅ String reference avoids import issues
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="comments", on_delete=models.CASCADE)  # 🔹 Connects to User model
     content = models.TextField()
 
     def __str__(self):
-        return f'Comment by {self.author_name} on {self.story.title}'  # ✅ Access story.title directly
+        return f'Comment by {self.author.username} on {self.story.title}'  # Use author's username

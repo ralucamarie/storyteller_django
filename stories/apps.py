@@ -44,7 +44,7 @@ def add_stories_and_writings_and_comments(sender, **kwargs):
         for _ in range(random.randint(3, 20)):
             Comment.objects.create(
                 story=story,
-                author_name=random.choice(["Alice", "Bob", "Charlie", "Diana", "Ethan"]),
+                author_id=random.choice([1, 2, 3, 4, 5]),
                 content=" ".join(paragraphs(3))[:random.randint(50, 1000)]
             )
 
