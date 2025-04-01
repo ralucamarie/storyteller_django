@@ -4,6 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -36,9 +37,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         """Create user with hashed password."""
         return User.objects.create_user(**validated_data)
 
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token["author_name"] = user.author_name
+        token["authorName"] = user.author_name
+        print("Generated token:", token)
         return token

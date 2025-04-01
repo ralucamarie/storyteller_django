@@ -9,7 +9,6 @@ def get_default_author():
 
 class Story(models.Model):
    title = models.CharField(max_length=255)
-   author_name = models.CharField(max_length=100)
    created_at = models.DateTimeField(auto_now_add=True)
    categories = models.ManyToManyField(Category, related_name='stories', blank=True)
    author = models.ForeignKey(
