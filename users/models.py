@@ -1,5 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
+def user_avatar_upload_to(instance, filename):
+    return f"avatars/{instance.id}/{filename}"
 
 
 class UserManager(BaseUserManager):
@@ -38,6 +40,8 @@ class User(AbstractBaseUser):
     surname = models.CharField(max_length=150, blank=True, null=True)
     email = models.EmailField(unique=True)
     author_name = models.CharField(max_length=100, unique=True)
+    avatar = models.ImageField(upload_to=user_avatar_upload_to, blank=True, null=True)
+    avatar_updated = models.DateTimeField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)  # Required for Django authentication
     is_staff = models.BooleanField(default=False)  # Required for Django admin
@@ -63,3 +67,23 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+
+class FavoriteAuthor(models.Model):
+    user = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="favorite_author_entries",
+    )
+    author = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="favorited_by_entries",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "author")
+
+    def __str__(self):
+        return f"{self.user.author_name} ★ {self.author.author_name}"

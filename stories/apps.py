@@ -4,15 +4,39 @@ from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
 def add_stories_and_writings_and_comments(sender, **kwargs):
+    from django.conf import settings
+
+    # Skip demo seeding during tests (and anywhere SEED_DEMO_DATA is disabled),
+    # so the test database starts empty and tests stay isolated.
+    if not getattr(settings, "SEED_DEMO_DATA", True):
+        return
+
     from django.apps import apps
     Story = apps.get_model('stories', 'Story')
     Category = apps.get_model('categories', 'Category')
     Writing = apps.get_model('writings', 'Writing')
     Comment = apps.get_model('comments', 'Comment')
+    User = apps.get_model('users', 'User')
+
+    if Story.objects.exists():
+        return
 
     categories = list(Category.objects.all())
-    if not categories:  # Ensure categories exist before proceeding
+    if not categories:
         return
+
+    authors = {}
+    for author_name in ["Alice", "Bob", "Charlie", "Diana", "Ethan", "Fiona", "George", "Hannah", "Ian", "Julia"]:
+        user, _ = User.objects.get_or_create(
+            author_name=author_name,
+            defaults={
+                "email": f"{author_name.lower()}@example.com",
+                "name": author_name,
+                "surname": "Author",
+                "password": "unused",
+            },
+        )
+        authors[author_name] = user
 
     stories_data = [
         {"title": "The Enchanted Forest", "author_name": "Alice"},
@@ -24,28 +48,28 @@ def add_stories_and_writings_and_comments(sender, **kwargs):
         {"title": "Journey to the Unknown", "author_name": "George"},
         {"title": "The Diary of a Scientist", "author_name": "Hannah"},
         {"title": "My Life Memoir", "author_name": "Ian"},
-        {"title": "Success and You", "author_name": "Julia"}
+        {"title": "Success and You", "author_name": "Julia"},
     ]
 
+    author_names = list(authors.keys())
     for story_data in stories_data:
-        story = Story.objects.create(**story_data)
-        story_categories = random.sample(categories, random.randint(1, 3))  # Assign 1 to 3 categories
-        story.categories.set(story_categories)
+        author_name = story_data.pop("author_name")
+        story = Story.objects.create(author=authors[author_name], **story_data)
+        story.categories.set(random.sample(categories, random.randint(1, 3)))
 
-        # Create 3-10 writings per story
         for _ in range(random.randint(3, 10)):
+            writer = authors[random.choice(author_names)]
             Writing.objects.create(
                 story=story,
-                author_name=random.choice(["Alice", "Bob", "Charlie", "Diana", "Ethan"]),
-                text=" ".join(paragraphs(3))[:random.randint(1000, 5000)]
+                author=writer,
+                text=" ".join(paragraphs(3))[:random.randint(1000, 5000)],
             )
 
-        # Create 3-10 writings per story
         for _ in range(random.randint(3, 20)):
             Comment.objects.create(
-                story=story,
-                author_id=random.choice([1, 2, 3, 4, 5]),
-                content=" ".join(paragraphs(3))[:random.randint(50, 1000)]
+                story_id=story,
+                author=random.choice(list(authors.values())),
+                content=" ".join(paragraphs(3))[:random.randint(50, 1000)],
             )
 
 

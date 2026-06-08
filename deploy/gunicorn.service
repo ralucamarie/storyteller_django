@@ -1,0 +1,29 @@
+; systemd unit for the Storyteller Django backend (gunicorn).
+; Install on the VPS as: /etc/systemd/system/gunicorn.service
+; Adjust User/paths if you don't deploy under /home/ubuntu/storyteller.
+;
+;   sudo cp deploy/gunicorn.service /etc/systemd/system/gunicorn.service
+;   sudo systemctl daemon-reload
+;   sudo systemctl enable --now gunicorn
+;   sudo systemctl status gunicorn
+
+[Unit]
+Description=gunicorn daemon for Storyteller (Django)
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/storyteller/storyteller_django
+; Environment is loaded from storyteller_django/.env by python-dotenv,
+; so no EnvironmentFile is needed here.
+ExecStart=/home/ubuntu/storyteller/venv/bin/gunicorn \
+    --workers 3 \
+    --timeout 60 \
+    --bind 127.0.0.1:8001 \
+    storyteller.wsgi:application
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -12,7 +12,7 @@ def add_categories(apps, schema_editor):
     ]
 
     for category in categories:
-        Category.objects.get_or_create(name=category)
+        Category.objects.get_or_create(category_name=category)
 
 class Migration(migrations.Migration):
 

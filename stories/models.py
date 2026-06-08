@@ -5,7 +5,12 @@ from categories.models import Category  # Import the Category model from the 'ca
 User = get_user_model()
 
 def get_default_author():
-   return User.objects.first().id  # Pick the first user as default (change as needed)
+   # Fallback author id. The app always sets the author explicitly via the
+   # serializer, so this default is effectively unused at runtime. It must not
+   # run any DB query: as a callable default it is also evaluated while
+   # migrations run, and querying the (possibly half-migrated) users table
+   # there aborts the migration transaction.
+   return None
 
 class Story(models.Model):
    title = models.CharField(max_length=255)
@@ -19,3 +24,15 @@ class Story(models.Model):
    )
    def __str__(self):
        return self.title if self.title else "Untitled Story"
+
+
+class FavoriteStory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="story_favorites")
+    story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name="favorites")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "story")
+
+    def __str__(self):
+        return f"{self.user.author_name} ♥ {self.story.title}"
