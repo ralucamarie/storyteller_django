@@ -36,7 +36,7 @@ class WritingCrudTests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["text"], "Next chapter")
+        self.assertEqual(response.data["text"], "<p>Next chapter</p>")
         # CamelCase output from the serializer.
         self.assertIn("imageUrl", response.data)
         self.assertIn("imageUpdated", response.data)

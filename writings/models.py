@@ -9,9 +9,8 @@ def writing_image_upload_to(instance, filename):
 
 class WritingLayout(models.TextChoices):
     STACK = "stack", "Image above text"
-    IMAGE_LEFT_50 = "image_left_50", "Image left 50%, text right 50%"
-    IMAGE_LEFT_30 = "image_left_30", "Image left 30%, text right 70%"
-    TEXT_LEFT_70 = "text_left_70", "Text left 70%, image right 30%"
+    IMAGE_LEFT = "image_left", "Image left, text wraps (max 40%)"
+    IMAGE_RIGHT = "image_right", "Image right, text wraps (max 40%)"
 
 
 class Writing(models.Model):

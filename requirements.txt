@@ -6,6 +6,7 @@ Pillow>=10.4
 psycopg2-binary>=2.9
 django-extensions>=3.2
 python-dotenv>=1.0
+bleach>=6.1
 
 # Production / deployment
 gunicorn>=22.0

@@ -2,7 +2,7 @@ from categories.models import Category
 from categories.serializers import CategorySerializer
 from comments.serializers import CommentSerializer
 from users.serializers import UserSerializer
-from writings.image_utils import save_writing_image
+from writings.html_utils import is_writing_html_empty, looks_like_html, plain_text_to_html, sanitize_writing_html
 from writings.models import Writing, WritingLayout
 from writings.serializers import WritingSerializer
 from utils.serializers import CamelCaseSerializer
@@ -52,6 +52,15 @@ class StorySerializer(CamelCaseSerializer):
                 {"content": "First writing is required."}
             )
 
+        content_raw = str(content)
+        if not looks_like_html(content_raw):
+            content_raw = plain_text_to_html(content_raw)
+        content_html = sanitize_writing_html(content_raw)
+        if is_writing_html_empty(content_html):
+            raise serializers.ValidationError(
+                {"content": "First writing is required."}
+            )
+
         categories_data = [
             name.strip()
             for name in categories_data
@@ -61,8 +70,6 @@ class StorySerializer(CamelCaseSerializer):
             raise serializers.ValidationError(
                 {"categories": "At least one category is required."}
             )
-
-        image_file = request.FILES.get("image") if request else None
 
         story = Story.objects.create(author=user, **validated_data)
 
@@ -76,10 +83,8 @@ class StorySerializer(CamelCaseSerializer):
         writing = Writing.objects.create(
             story=story,
             author=user,
-            text=content.strip(),
+            text=content_html,
             layout=layout,
         )
-        if image_file:
-            save_writing_image(writing, image_file)
 
         return story

@@ -55,7 +55,7 @@ class StoryCreateTests(APITestCase):
         story = Story.objects.get(title="A brand new story")
         self.assertEqual(story.author, self.user)
         self.assertEqual(story.writings.count(), 1)
-        self.assertEqual(story.writings.first().text, "Once upon a time...")
+        self.assertEqual(story.writings.first().text, "<p>Once upon a time...</p>")
         self.assertEqual(story.categories.count(), 2)
         self.assertTrue(Category.objects.filter(name="Adventure").exists())
 

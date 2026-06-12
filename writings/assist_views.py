@@ -10,6 +10,7 @@ from .gemini_assist import (
     generate_new_story_assist,
     generate_writing_assist,
 )
+from .html_utils import html_to_plain_text
 
 
 class WritingAssistView(APIView):
@@ -19,7 +20,9 @@ class WritingAssistView(APIView):
         story_id = request.data.get("story_id") or request.data.get("storyId")
         mode = (request.data.get("mode") or "suggestion").strip().lower()
         lang = (request.data.get("lang") or "ro").strip().lower()
-        draft_text = request.data.get("draft_text") or request.data.get("draftText") or ""
+        draft_text = html_to_plain_text(
+            str(request.data.get("draft_text") or request.data.get("draftText") or "")
+        )
 
         title = (request.data.get("title") or "").strip()
         categories = request.data.get("categories") or request.data.get("category_names") or []

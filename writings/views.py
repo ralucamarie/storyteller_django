@@ -5,8 +5,10 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from utils.media_urls import build_media_url
+from .inline_image_utils import save_inline_writing_image
 from .models import Writing
-from .serializers import WritingImageSerializer, WritingSerializer
+from .serializers import WritingImageSerializer, WritingInlineImageSerializer, WritingSerializer
 
 
 class WritingViewSet(viewsets.ModelViewSet):
@@ -28,6 +30,23 @@ class WritingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="inline-image",
+        permission_classes=[IsAuthenticated],
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def inline_image(self, request):
+        serializer = WritingInlineImageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        relative_url = save_inline_writing_image(
+            request.user.id,
+            serializer.validated_data["image"],
+        )
+        absolute_url = request.build_absolute_uri(relative_url)
+        return Response({"url": absolute_url}, status=status.HTTP_201_CREATED)
 
     @action(
         detail=True,

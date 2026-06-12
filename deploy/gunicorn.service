@@ -14,11 +14,10 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/storyteller/storyteller_django
-; Environment is loaded from storyteller_django/.env by python-dotenv,
-; so no EnvironmentFile is needed here.
+WorkingDirectory=/home/ubuntu/storyteller
+; Environment is loaded from .env by python-dotenv (repo root).
 ExecStart=/home/ubuntu/storyteller/venv/bin/gunicorn \
-    --workers 3 \
+    --workers 2 \
     --timeout 60 \
     --bind 127.0.0.1:8001 \
     storyteller.wsgi:application
